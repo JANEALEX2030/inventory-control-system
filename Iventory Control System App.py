@@ -305,3 +305,22 @@ def open_inventory_window():
                     tags = ('low',) if row[3] <= 5 else ()
                     tree.insert('', tk.END, values=row, tags=tags)
                 conn.close()
+
+                def delete_item():
+                    try:
+                        selected = tree.selection()
+                        if not selected:
+                            raise ValueError("No item selected")
+                        item_id = tree.item(selected[0])['values'][0]
+                        if messagebox.askyesno("Confirm", "Delete selected item?"):
+                            conn = sqlite3.connect('inventory.db')
+                            cursor = conn.cursor()
+                            cursor.execute("DELETE FROM inventory WHERE id=?", (item_id,))
+                            conn.commit()
+                            conn.close()
+                            messagebox.showinfo("Deleted", "Item deleted")
+                            clear_fields()
+                            load_items()
+                    except Exception as e:
+                        messagebox.showerror("Error", str(e))
+
