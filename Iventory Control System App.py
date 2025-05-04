@@ -406,4 +406,106 @@ def open_inventory_window():
 
             def confirm_order():
                 try:
+# -------------------- DATABASE --------------------
+def init_db():
+    conn = sqlite3.connect('inventory.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS inventory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            category TEXT,
+            quantity INTEGER NOT NULL,
+            price REAL NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+def open_inventory_window():
+    def add_item():
+        try:
+            name = name_entry.get()
+            category = category_entry.get()
+            quantity = int(quantity_entry.get())
+            price = float(price_entry.get())
+            if not name:
+                raise ValueError("Item name required")
+            conn = sqlite3.connect('inventory.db')
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO inventory (name, category, quantity, price) VALUES (?, ?, ?, ?)",
+                           (name, category, quantity, price))
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("Success", "Item added")
+            clear_fields()
+            load_items()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def update_item():
+        try:
+            selected = tree.selection()
+            if not selected:
+                raise ValueError("No item selected")
+            item_id = tree.item(selected[0])['values'][0]
+            name = name_entry.get()
+            category = category_entry.get()
+            quantity = int(quantity_entry.get())
+            price = float(price_entry.get())
+            conn = sqlite3.connect('inventory.db')
+            cursor = conn.cursor()
+            cursor.execute("UPDATE inventory SET name=?, category=?, quantity=?, price=? WHERE id=?",
+                           (name, category, quantity, price, item_id))
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("Updated", "Item updated")
+            clear_fields()
+            load_items()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def delete_item():
+        try:
+            selected = tree.selection()
+            if not selected:
+                raise ValueError("No item selected")
+            item_id = tree.item(selected[0])['values'][0]
+            if messagebox.askyesno("Confirm", "Delete selected item?"):
+                conn = sqlite3.connect('inventory.db')
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM inventory WHERE id=?", (item_id,))
+                conn.commit()
+                conn.close()
+                messagebox.showinfo("Deleted", "Item deleted")
+                clear_fields()
+                load_items()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def order_item():
+        try:
+            selected = tree.selection()
+            if not selected:
+                raise ValueError("No item selected.")
+
+            item = tree.item(selected[0])['values']
+            item_id, name, category, current_qty, price = item
+
+            order_win = tk.Toplevel(app)
+            order_win.title("Place Order")
+            order_win.geometry("300x200")
+            order_win.configure(bg="#e6f0ff")
+
+            tk.Label(order_win, text=f"Ordering: {name}", bg="#e6f0ff").pack(pady=5)
+            tk.Label(order_win, text="Enter quantity:", bg="#e6f0ff").pack()
+            qty_entry = tk.Entry(order_win)
+            qty_entry.pack()
+
+            def confirm_order():
 
