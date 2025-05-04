@@ -224,3 +224,62 @@ def open_inventory_window():
                     tk.Button(login_window, text="Sign Up", command=open_signup_window, bg="#4da6ff", fg="white").pack()
 
                     login_window.mainloop()
+                    values = tree.item(selected[0])['values']
+                    name_entry.delete(0, tk.END)
+                    name_entry.insert(0, values[1])
+                    category_entry.delete(0, tk.END)
+                    category_entry.insert(0, values[2])
+                    quantity_entry.delete(0, tk.END)
+                    quantity_entry.insert(0, values[3])
+                    price_entry.delete(0, tk.END)
+                    price_entry.insert(0, values[4])
+
+                    def clear_fields():
+                        name_entry.delete(0, tk.END)
+                        category_entry.delete(0, tk.END)
+                        quantity_entry.delete(0, tk.END)
+                        price_entry.delete(0, tk.END)
+
+                    app = tk.Tk()
+                    app.title("Inventory Dashboard")
+                    app.geometry("800x550")
+                    app.configure(bg="#e6f0ff")
+
+                    tk.Label(app, text="Item Name", bg="#e6f0ff").grid(row=0, column=0, padx=10, pady=5)
+                    name_entry = tk.Entry(app)
+                    name_entry.grid(row=0, column=1)
+
+                    tk.Label(app, text="Category", bg="#e6f0ff").grid(row=1, column=0)
+                    category_entry = tk.Entry(app)
+                    category_entry.grid(row=1, column=1)
+
+                    tk.Label(app, text="Quantity", bg="#e6f0ff").grid(row=2, column=0)
+                    quantity_entry = tk.Entry(app)
+                    quantity_entry.grid(row=2, column=1)
+
+                    tk.Label(app, text="Price", bg="#e6f0ff").grid(row=3, column=0)
+                    price_entry = tk.Entry(app)
+                    price_entry.grid(row=3, column=1)
+
+                    tk.Button(app, text="Add", command=add_item, bg="#4da6ff", fg="white").grid(row=0, column=2,
+                                                                                                padx=10)
+                    tk.Button(app, text="Update", command=update_item, bg="#4da6ff", fg="white").grid(row=1, column=2)
+                    tk.Button(app, text="Delete", command=delete_item, bg="#4da6ff", fg="white").grid(row=2, column=2)
+                    tk.Button(app, text="Clear", command=clear_fields, bg="#4da6ff", fg="white").grid(row=3, column=2)
+                    tk.Button(app, text="Order", command=order_item, bg="#4da6ff", fg="white").grid(row=4, column=2,
+                                                                                                    pady=5)
+                    tk.Button(app, text="Restock", command=restock_item, bg="#4da6ff", fg="white").grid(row=5, column=2,
+                                                                                                        pady=5)
+
+                    columns = ('ID', 'Name', 'Category', 'Quantity', 'Price')
+                    tree = ttk.Treeview(app, columns=columns, show='headings')
+                    for col in columns:
+                        tree.heading(col, text=col)
+                        tree.column(col, width=120)
+                    tree.grid(row=6, column=0, columnspan=3, pady=20, padx=10)
+                    tree.bind('<<TreeviewSelect>>', on_select)
+
+                    tree.tag_configure('low', background='#ffcccc')  # Red highlight for low stock
+
+                    load_items()
+                    app.mainloop()
