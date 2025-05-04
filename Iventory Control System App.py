@@ -294,3 +294,14 @@ def open_inventory_window():
                 tags = ('low',) if row[3] <= 5 else ()
                 tree.insert('', tk.END, values=row, tags=tags)
             conn.close()
+
+            def load_items():
+                for i in tree.get_children():
+                    tree.delete(i)
+                conn = sqlite3.connect('inventory.db')
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM inventory")
+                for row in cursor.fetchall():
+                    tags = ('low',) if row[3] <= 5 else ()
+                    tree.insert('', tk.END, values=row, tags=tags)
+                conn.close()
